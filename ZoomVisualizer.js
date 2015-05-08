@@ -17,7 +17,8 @@
 
 		var defaults =
 		{
-			object					: null
+			object					: null,
+			resizeInitial			: false
 		};
 		
 		var _this;
@@ -493,6 +494,7 @@
 			var posDrag = parseFloat(getSize(_drag,"left"));
 			var _newWid;
 			var _newHei;
+			var _posMaxDrag = _box.width()-_drag.width();
 					
 			if(_wrapperResize)	{
 				if(!firstLoad){//checa se foi a primeira vez que a imagem foi carregada
@@ -507,11 +509,21 @@
 						scaleResize = 1;
 					}
 					
-					_newWid = _originalWidth*scaleResize;
-					_newHei = _originalHeight*scaleResize;
+					if(_data.resizeInitial)//redimensiona imagem para ela caber no frame de visualização
+					{
+						_newWid = _originalWidth*scaleResize;
+						_newHei = _originalHeight*scaleResize;
+					}
+					else
+					{
+						_newWid = _originalWidth;
+						_newHei = _originalHeight;
+						_drag.css({left:_posMaxDrag});
+						posDrag = parseFloat(getSize(_drag,"left"));
+					}
 					
 				}else{
-					var _posMaxDrag = _box.width()-_drag.width();
+					
 					
 					/*
 					//valores conhecidos

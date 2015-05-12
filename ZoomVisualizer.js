@@ -18,7 +18,13 @@
 		var defaults =
 		{
 			object					: null,
-			resizeInitial			: false
+			resizeInitial			: false,// redimensiona ou não a imagem em zoom
+			sliderOrientation		: "horizontal",
+			positionZoom			: {left:0,right:0,top:0,bottom:0},//margem para a mascara do zoom na tela
+			centerThumbs			: false,
+			loader					: "",
+			added					: function() {},
+			removed					: function() {}
 		};
 		
 		var _this;
@@ -36,7 +42,8 @@
 		var firstLoad;
 		var wrapper_geral;
 		var scaleResize = 1;
-		var index_ativo = 0;		
+		var index_ativo = 0;
+		var plugin_settings;		
 		
 		// Method calling logic
 		if ( methods[method] )//caso exista um método, esse método é chamado
@@ -51,7 +58,6 @@
 		{
 		  $.error( 'Method ' +  method + ' does not exist on ZoomVisualizer' );
 		} 
-		
 
 		function _init($this, options)
 		{
@@ -59,7 +65,7 @@
 			var $this 						= $($this);
 					
 			var options 					= $.extend(defaults, options);
-			
+			plugin_settings 				= options;
 			$this.data(options);
 			
 			_this = $this;
@@ -67,18 +73,25 @@
 			var data 						= $this.data();
 			
 			if(options.object == '')
-				alert('The object is empty!!!!')
+			{
+				alert('The object is empty!!!!');
+			}
 			else
+			{
 				initialize($this);
+			}
 		}
 		
 		function initialize($this)
 		{
+						
 			_data = $this.data();
 			
-			wrapper_geral = $(_data.object)
+			wrapper_geral = $(_data.object);
 			
 			wrapper_geral.fadeIn(400);
+			
+			plugin_settings.added.call(this, { object:wrapper_geral});
 			
 			//prevent body from scroll
 			jQuery(document.body).css('overflow', 'hidden');
@@ -91,17 +104,75 @@
 			
 			btZoomOut = $(wrapper_geral.find(".zoom-out"));
 			btZoomOut.click(zoomOut);
+			
+			//posiciona a imagem do zoom
+			$(".content",wrapper_geral).css({top:_data.positionZoom.top,left:_data.positionZoom.left});
+			
+			//
+			wrapper_geral.addClass(_data.sliderOrientation);
+			
+			//posiciona os thumbs caso centerThumbs == true
+			if(_data.centerThumbs == true)
+			{
+				var _width = 0;
+				
+				$('#listagem-imagens a',wrapper_geral).each(function(index,value)
+				{
+					_width += $(this).outerWidth(true);
+				});
+				
+				if(_width > $(window).width())
+				{
+					$('#listagem-imagens > div',wrapper_geral).width(_width+5);
+					$('#listagem-imagens',wrapper_geral).css({ overflow:"scroll"});
+					_width = $(window).width() - 10;
+				}
+				
+				$('#listagem-imagens',wrapper_geral).width(_width+5);
+				$('#listagem-imagens',wrapper_geral).css({ margin:'0 auto'});
+			}
+			
+			//oculta footer e as setas caso tenha apenas um item no zoom
+			if($('#listagem-imagens a',wrapper_geral).size() == 1)
+			{
+				$(".footer",wrapper_geral).remove();
+				$(".content #next",wrapper_geral).hide();
+				$(".content #before",wrapper_geral).hide();
+			}
+			
+			if(_data.sliderOrientation == "vertical") 
+			{
+				$(".tooltip-caller",wrapper_geral).mouseenter(function(){
+					var _tooltip = $(".tooltip", $(this).parent());
 					
+					_tooltip.css({display:'block',opacity:0});
+					
+					if(!_tooltip.hasClass('positioned')){
+						_tooltip.addClass('positioned');
+						_tooltip.css({left:-$("p",_tooltip).outerWidth(true)-10, width:$("p",_tooltip).outerWidth(true)});
+					}
+					
+					_tooltip.animate({opacity:1},80);
+				});
+				
+				$(".tooltip-caller",wrapper_geral).mouseleave(function(){
+					var _tooltip = $(".tooltip", $(this).parent());
+					_tooltip.hide(100);					
+				});
+			}
+			
 			//---------------------------------
 			//drag zoom
 			//----------
 			var _drag = wrapper_geral.find("#barra #scroll");//barra
 			var _box = wrapper_geral.find("#barra");
 			
-			hDragMove = _box.width()-_drag.width();
+			hDragMove = (_data.sliderOrientation == "horizontal") ? _box.width()-_drag.width() : _box.height()-_drag.height();
+			
+			var _axis = (_data.sliderOrientation == "horizontal") ? 'x' : 'y';
 			
 			_drag.draggable({
-				axis: 'x',
+				axis: _axis,
 				containment: 'parent',
 				cursor: 'pointer',
 				appendTo: 'body',
@@ -115,7 +186,7 @@
 					_box.parent().parent().mouseleave(
 						function()
 						{
-							$('.ui-draggable-dragging').draggable( 'option',  'revert', false ).trigger('mouseup');
+							$('.ui-draggable-dragging',wrapper_geral).draggable( 'option',  'revert', false ).trigger('mouseup');
 						}
 					);
 				},
@@ -183,27 +254,18 @@
 		
 		function moveImage ()
 		{
-			//$( "#lightbox-zoom .wrapper" ).mousemove(function( event ) {
+			//$( "#zoom-visualizer .wrapper" ).mousemove(function( event ) {
 			  //console.log ( event.clientX + ", " + event.clientY);
 			//});
-			$("#lightbox-zoom .wrapper").mousemove(function (e) {
+			$(".wrapper",wrapper_geral).mousemove(function (e) {
 				//http://www.quirksmode.org/js/events_properties.html
 				//getting current mouse position
 				
 				var posx = 0;
 				var posy = 0;
-				if (!e) var e = window.event;
-				if (e.pageX || e.pageY) 	{
-					posx = e.pageX;
-					posy = e.pageY;
-				}
-				else if (e.clientX || e.clientY) 	{
-					posx = e.clientX + document.body.scrollLeft
-						+ document.documentElement.scrollLeft;
-					posy = e.clientY + document.body.scrollTop
-						+ document.documentElement.scrollTop;
-				}
-				//--------------------------------------
+				
+				posx = e.clientX;
+				posy = e.clientY; 
 				
 				var _left = getSize($(this).parent(),'left');
 				var _top = getSize($(this).parent(),'top');
@@ -258,18 +320,18 @@
 		}
 		
 		function initAbaMinimizar () {
-			$("#aba-lista").click(function(){
+			$("#aba-lista",wrapper_geral).click(function(){
 				//---------------
-				if($("#lightbox-zoom .footer").hasClass("closed")){
+				if($(".footer",wrapper_geral).hasClass("closed")){
 					$(this).find("span").text("Ocultar miniaturas");
-					$("#lightbox-zoom .footer").animate({height:135},0);
-					$("#listagem-imagens").show();
-					$("#lightbox-zoom .footer").removeClass("closed");
+					$(".footer",wrapper_geral).animate({height:135},0);
+					$("#listagem-imagens",wrapper_geral).show();
+					$(" .footer",wrapper_geral).removeClass("closed");
 				}else{
 					$(this).find("span").text("Exibir miniaturas");
-					$("#lightbox-zoom .footer").animate({height:10},0);
-					$("#listagem-imagens").hide();
-					$("#lightbox-zoom .footer").addClass("closed");
+					$(".footer",wrapper_geral).animate({height:10},0);
+					$("#listagem-imagens",wrapper_geral).hide();
+					$(".footer",wrapper_geral).addClass("closed");
 				}
 				resizeHandler();
 				reposImage ();	
@@ -297,6 +359,8 @@
 			wrapper_geral = null;
 			scaleResize = 1;
 			index_ativo = 0;
+			
+			plugin_settings.removed.call(this, {});
 		}
 			
 		//--------------------
@@ -397,11 +461,19 @@
 			var _drag = $(wrapper_geral.find("#barra #scroll"));//barra
 			var _box = $(wrapper_geral.find("#barra"));
 			
-			var _maxValue = _box.width() - _drag.width();
+			var _maxValue = (_data.sliderOrientation == "horizontal") ? _box.width() - _drag.width() :  _box.height() - _drag.height();
 			
 			if(posDragMove<_maxValue){
 				posDragMove += moveDrag;
-				_drag.css({left:posDragMove});
+				if(_data.sliderOrientation == "horizontal")
+				{
+					_drag.css({left:posDragMove});
+				}
+				else
+				{
+					_drag.css({top:posDragMove});
+				}
+				
 				reposImage();
 			}else{
 				//do nothing
@@ -416,11 +488,19 @@
 			var _drag = $(wrapper_geral.find("#barra #scroll"));//barra
 			var _box = $(wrapper_geral.find("#barra"));
 			
-			var _maxValue = _box.width() - _drag.width();
+			var _maxValue = (_data.sliderOrientation == "horizontal") ? _box.width() - _drag.width() :  _box.height() - _drag.height();
 			
 			if(posDragMove>0){
 				posDragMove -= moveDrag;
-				_drag.css({left:posDragMove});
+				
+				if(_data.sliderOrientation == "horizontal")
+				{
+					_drag.css({left:posDragMove});
+				}
+				else
+				{
+					_drag.css({top:posDragMove});
+				}
 				reposImage();
 			}else{
 				//do nothing
@@ -435,8 +515,8 @@
 		function resizeHandler () {
 			
 			var _wrapper = wrapper_geral.find(".wrapper");
-			var _width = $(window).width()-20;
-			var _height = $(window).height() - 20 - wrapper_geral.find(".header").height() - wrapper_geral.find(".footer").height()-$("#aba-lista").height();
+			var _width = $(window).width()-(_data.positionZoom.left+_data.positionZoom.right);
+			var _height = $(window).height() - (_data.positionZoom.top+_data.positionZoom.bottom) - wrapper_geral.find(".footer").height()-$("#aba-lista").height();
 			_wrapper.css({width:_width, height:_height});
 			
 			reposImage ();
@@ -453,14 +533,20 @@
 			
 			var img = new Image();
 			
-			var _loader = $("<div class='loader_overlay'><img src='img/ajax-loader-overlay.gif'></div>");
-			_body.append(_loader);
+			if(_data.loader != "")
+			{
+				var _loader = $("<div class='loader_overlay'><img src='"+_data.loader+"'></div>");
+				_body.append(_loader);
+			}
 			
 			$(img).load(function(){
 					  
 				firstLoad = false;
 				
-				_loader.remove();
+				if(_data.loader != "")
+				{
+					_loader.remove();
+				}
 							
 				wrapper_geral.find(".wrapper").append($(this));
 				
@@ -472,9 +558,17 @@
 				
 				_originalWidth = _wrapperResize.width();
 				_originalHeight = _wrapperResize.height();
-				
+								
 				var _drag = wrapper_geral.find("#barra #scroll");//barra
-				_drag.css({left:0});
+				
+				if(_data.sliderOrientation == "horizontal")
+				{
+					_drag.css({left:0});
+				}
+				else
+				{
+					_drag.css({top:0});
+				}
 							
 				reposImage();
 			
@@ -491,10 +585,10 @@
 		
 			var _drag = wrapper_geral.find("#barra #scroll");//barra
 			var _box = wrapper_geral.find("#barra");
-			var posDrag = parseFloat(getSize(_drag,"left"));
+			var posDrag = (_data.sliderOrientation == "horizontal") ? parseFloat(getSize(_drag,"left")) : parseFloat(getSize(_drag,"top"));
 			var _newWid;
 			var _newHei;
-			var _posMaxDrag = _box.width()-_drag.width();
+			var _posMaxDrag = (_data.sliderOrientation == "horizontal") ? _box.width()-_drag.width() : _box.height()-_drag.height();
 					
 			if(_wrapperResize)	{
 				if(!firstLoad){//checa se foi a primeira vez que a imagem foi carregada
@@ -523,7 +617,6 @@
 					}
 					
 				}else{
-					
 					
 					/*
 					//valores conhecidos
@@ -558,13 +651,6 @@
 			}	
 				
 		}//end reposImage
-		
-		//------------------------------------
-		function getSize(_obj,_css)
-		{
-			var _regExp = new RegExp("[a-z][A-Z]","g");
-			return parseFloat(_obj.css(_css).replace(_regExp, ""));
-		}
 		
 		//===================================================================================
 		//===================================================================================   

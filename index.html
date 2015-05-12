@@ -3,9 +3,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Plugin</title>
-<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
-    <!-- zoom overlay -->
-    <script type="text/javascript" src="jquery.mousewheel.pack.js"></script>
+	
+	<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+ 	<link rel="stylesheet" media="screen" type="text/css" href="zoom-visualizer.css">
     <script type="text/javascript" src="jquery-ui-1.10.4.custom.min.js"></script>
     <script type="text/javascript" src="ZoomVisualizer.js"></script>
     <!-- -->
@@ -13,8 +13,15 @@
 	jQuery(document).ready(
 	function()
 	{
-		$(window).ZoomVisualizer({object:'#lightbox-zoom',resizeInitial:false});
+		$(window).ZoomVisualizer({ added:added, removed:removed, object:'#zoom-visualizer',  resizeInitial:true, centerThumbs: true, loader:"img/ajax-loader-overlay.gif", sliderOrientation:"vertical",positionZoom:{left:10,right:10,top:10,bottom:10}});
 		
+		function added () {
+			console.log("zoom adicionado");
+		}
+		
+		function removed () {
+			console.log("zoom removido");
+		}
 	});
 
 </script>
@@ -32,110 +39,85 @@ select{color: #999999;}
 .center{width:1000px; margin:0 auto; text-align:left}
 body { background:#f7f6f6; font-family: 'Roboto', sans-serif; font-size:14px; line-height:20px; color:#555;font-weight: 100; /*background: url(img/img/bg-footer.png) repeat-x 0 bottom;*/}
 
-/*---------------------LIGHTBOX OFERTAS------------------------------------*/
-#lightbox-zoom{ display:none; position:fixed; z-index:99999; top:0; left:0;}
-#lightbox-zoom .lightbox{ display:block; z-index:6000;}
-
-#lightbox-zoom .header {background-color: #fff; height: 72px; z-index:9999;}
-#lightbox-zoom .header .inside {margin: 0 271px}
-#lightbox-zoom .header .inside div {float: left;}
-#lightbox-zoom .header .inside div .baixar {float: left;width: 115px; height: 39px; background: url(img/bt-baixar.png)no-repeat 0 0;margin: 17px 7px 0 0}
-#lightbox-zoom .header .inside div .baixar:hover {background-position: 0 -39px}
-#lightbox-zoom .header .inside div .fechar {float: left;height: 39px; width: 45px; background: url(img/bt-fechar.png)no-repeat 0 0;margin-top: 17px}
-#lightbox-zoom .header .inside div .fechar:hover {background-position: 0 -39px}
-#lightbox-zoom .header .inside #zoom{ border-left: 1px solid #cdcccb; margin:0px 28px 0 0; padding-left: 28px; float: right; height: 72px;}
-#lightbox-zoom .header .inside #zoom > div{ margin-top:20px;}
-#lightbox-zoom .header .inside #zoom .zoom-out {float:left;width: 9px; height: 9px; background: url(img/zoom-out.png)no-repeat 0 0;margin-top: 11px}
-#lightbox-zoom .header .inside #zoom .zoom-in  {float:left;width: 9px; height: 9px; background: url(img/zoom-in.png)no-repeat 0 0;margin-top: 11px}
-#lightbox-zoom .header .inside #zoom #barra {float: left;width:115px; height:11px ;background: url(img/barra-rolagem-lightbox.png)no-repeat 0 0; position: relative;margin: 10px}
-#lightbox-zoom .header .inside #zoom #scroll {display:block;width:25px; height:10px; left:0px; top:1px; background: url(img/scroll-lightbox.png)no-repeat 0 0;}
-#lightbox-zoom .header .inside #zoom img {float: left; margin-left:20px; display: none;}
-#lightbox-zoom .header .inside #download {float: right;padding: 0 0 16px 33px; border-left: 1px solid #cdcccb}
-#lightbox-zoom .header{background-color: #fff; height: 72px; position: fixed; width: 100%; z-index: 7000;}
-#lightbox-zoom .header .inside{margin: 0 15px;}
-#lightbox-zoom .header .inside p{float: left; font-weight: 400; font-size: 18px; color: #034ea2; margin-top: 29px;}
-
-#lightbox-zoom .content {position: fixed; top:80px; left:10px;}
-#lightbox-zoom .content #next {display: block;width:45px ;height:39px ;position: absolute;background: url(img/icon-next.png)no-repeat 0 0; top: 413px; right:269px; z-index:999;}
-#lightbox-zoom .content #before {display: block;width:45px ;height:39px ;position: absolute; background: url(img/icon-before.png)no-repeat 0 0;top: 413px; left:269px; z-index:999;}
-#lightbox-zoom .wrapper{ overflow:hidden; position:relative;}
-#lightbox-zoom .content img{ display:none; position:relative; left:0; top:0;}
-#lightbox-zoom .content #next{display: block; width: 45px; height: 39px; position: fixed; background: url(img/icon-next.png)no-repeat 0 0; top: 45%; right: 5%;}
-#lightbox-zoom .content #before{display: block;width:45px ;height:39px ;position: fixed;background: url(img/icon-before.png)no-repeat 0 0;top: 45%; left:5%}
-
-#lightbox-zoom .footer {background-color: #fff; height: 135px;}
-#lightbox-zoom .footer div a {float: left;width: 67px;height: 104px; margin: 4px 5px 5px 0;position: relative;}
-#lightbox-zoom .footer div a span {width: 67px;height: 104px;position: absolute;top: 0}
-#lightbox-zoom .footer div a.ativo .vermelho-hover ,#lightbox-zoom .footer a:hover .vermelho-hover {background: url(img/bg-hover-oferta.png)repeat-x 0 0;display: block;}  
-
-#lightbox-zoom .footer div {margin-left: 286px}
-#lightbox-zoom .footer{background-color: #fff; height: 135px; position: fixed; width: 100%; bottom: 0;}
-#lightbox-zoom .footer div{margin-left: 286px; margin: 0 15px;}
-
-#lightbox-zoom .lightbox-ofertas-bg{position:fixed; background: url(img/bg-overlay.png)repeat 0 0; width: 100%; height: 100%; z-index: 5000;}
-#lightbox-zoom .lightbox{ position: absolute;}
-#lightbox-zoom .galeria-fotos{display:none}
-
-#aba-lista{ position:absolute; height:30px; width:140px; left:50%; top:-30px; margin-left:-70px; background-color:#FFFFFF; text-decoration:none;-webkit-border-top-left-radius: 3px; -webkit-border-top-right-radius: 3px; -moz-border-radius-topleft: 3px; -moz-border-radius-topright: 3px; border-top-left-radius: 3px; border-top-right-radius: 3px;}
-#aba-lista span{ color:#999999; display:block; text-align:center; padding-top:5px; font-weight:400;}
-#aba-lista span:hover{ color:#000000;}
-
-.loader_overlay{position:fixed; width:31px; height:31px; display:block; left:50%; top:50%; margin:-15px 0 0 -15px; z-index:999999;}
-
 body{ background:url(img/bg.jpg) no-repeat center 0;}
+
+
 
 </style>
 </head>
 
 <body>
-
-<div id="lightbox-zoom" style="display: block;">
-			<div class="lightbox-ofertas-bg"></div>
-			<div class="lightbox">
-				<div class="header">
-					<div class="inside">
-						<div id="download">
-							<a href="" class="fechar"></a>
-							<div class="clear"></div>
-						</div>
-						<div id="zoom">
-							<div>
-								<a href="" class="zoom-out"></a>
-								<span id="barra"><strong id="scroll" class="ui-draggable" style="position: relative; left: 0px;"></strong></span>
-								<a href="" class="zoom-in"></a>
-								<img src="img/icon-lupa.png">
-								<div class="clear"></div>
-							</div>
-						</div>
-						<div class="clear"></div>
-					</div>	
-				</div>
-				<div class="content">
-					<a href="" id="next"></a>
-					<div class="wrapper" style="width: 1415px; height: 362px;">
-					<img src="img/camiseta_hombre_jackknife_negra.jpg" class="dragme"></div>
-					<a href="" id="before"></a>
-				</div>
-				<div class="footer">
-					<a href="#" id="aba-lista"><span>Ocultar miniaturas</span></a>
-					<div id="listagem-imagens">
-                    <a class="item-zoom-image ativo" href="img/camiseta_hombre_jackknife_negra.jpg" alt="0">
-                        <img src="thumb.php?src=img/camiseta_hombre_jackknife_negra.jpg&amp;wmax=67&amp;hmax=104&amp;quality=80&amp;crop=true">
-                        <span class="vermelho-hover"></span>
-                    </a>
-                    <a class="item-zoom-image" href="img/design.png" alt="1">
-                        <img src="thumb.php?src=img/design.png&amp;wmax=67&amp;hmax=104&amp;quality=80&amp;crop=true">
-                        <span class="vermelho-hover"></span>
-                    </a>
-                    <a class="item-zoom-image" href="img/camiseta_hombre_jackknife_negra.jpg" alt="2">
-                        <img src="thumb.php?src=img/camiseta_hombre_jackknife_negra.jpg&amp;wmax=67&amp;hmax=104&amp;quality=80&amp;crop=true">
-                        <span class="vermelho-hover"></span>
-                    </a>
-						<div class="clear"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-
+	<div id="zoom-visualizer" style="display: block;">
+        <div class="lightbox-ofertas-bg"></div>
+        <div class="lightbox">
+            <div class="header">
+                <div class="inside">
+                    <div id="wrapper-fechar" class="tooltip-content">
+                    	<div class="tooltip">
+                        	<p>Fechar</p>
+                            <span></span>
+                        </div>
+                        <a href="" class="fechar tooltip-caller"></a>
+                        <div class="clear"></div>
+                    </div>
+                    <div id="zoom">
+                        <div>
+                            <div class="tooltip-content">
+                                <div class="tooltip">
+                                    <p>Diminuir Zoom</p>
+                                    <span></span>
+                                </div>
+                            	<a href="#" class="zoom-out tooltip-caller"></a>
+                            </div>
+                            <div id="wrapper-barra-zoom" class="tooltip-content">
+                            	<div class="tooltip">
+                                    <p>Zoom</p>
+                                    <span></span>
+                                </div>
+                            	<div class="tooltip-caller wrapper-barra">
+                                	<span id="barra"><strong id="scroll" class="ui-draggable" style="position: relative; left: 0px;"></strong></span>
+                                </div>
+                            </div>
+                            <div class="tooltip-content">
+                                <div class="tooltip">
+                                    <p>Aumentar Zoom</p>
+                                    <span></span>
+                                </div>
+                            	<a href="#" class="zoom-in tooltip-caller"></a>  
+                            </div>                    
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                </div>	
+            </div>
+            <div class="content">
+                <a href="" id="next"></a>
+                <div class="wrapper" style="width: 1415px; height: 362px;">
+                <img src="img/camiseta_hombre_jackknife_negra.jpg" class="dragme"></div>
+                <a href="" id="before"></a>
+            </div>
+            <div class="footer">
+                <a href="#" id="aba-lista"><span>Ocultar miniaturas</span></a>
+                <div id="listagem-imagens">
+                    <div>
+                        <a class="item-zoom-image ativo" href="img/camiseta_hombre_jackknife_negra.jpg" alt="0">
+                            <img src="img/camiseta_hombre_jackknife_negra-thumb.jpg">
+                        </a>
+                        <a class="item-zoom-image" href="img/design.png" alt="1">
+                            <img src="img/design-thumb.png">
+                        </a>
+                        <a class="item-zoom-image" href="img/camiseta_hombre_lumberjack_blanca.jpg" alt="2">
+                            <img src="img/camiseta_hombre_lumberjack_blanca-thumb.jpg">
+                        </a>
+                        <a class="item-zoom-image" href="img/camiseta_hombre_mr-speed_blanca1.jpg" alt="2">
+                            <img src="img/camiseta_hombre_mr-speed_blanca1-thumb.jpg">
+                        </a>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

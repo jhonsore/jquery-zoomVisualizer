@@ -367,6 +367,11 @@
 		function initListaThumbs () {
 			
 			//item-zoom-image
+			if($(wrapper_geral.find(".footer .item-zoom-image.ativo")).size()>0)
+			{
+				index_ativo = $(wrapper_geral.find(".footer .item-zoom-image.ativo")).attr('alt');
+			}
+			
 			$(wrapper_geral.find(".footer .item-zoom-image")).each(function(index, element) {
 				
 				if(index == index_ativo){

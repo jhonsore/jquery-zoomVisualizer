@@ -315,8 +315,11 @@
 		
 		function getSize(_obj,_css)
 		{
-			var _regExp = new RegExp("[a-z][A-Z]","g");
-			return parseFloat(_obj.css(_css).replace(_regExp, ""));
+			if(_obj.size()>0)
+			{
+				var _regExp = new RegExp("[a-z][A-Z]","g");
+				return parseFloat(_obj.css(_css).replace(_regExp, ""));
+			}
 		}
 		
 		function initAbaMinimizar () {

@@ -393,6 +393,8 @@
 			scaleResize = 1;
 			index_ativo = 0;
 			
+			if($('.loader_overlay').size() > 0){	$('.loader_overlay').remove();}
+			
 			plugin_settings.removed.call(this, {});
 		}
 			
@@ -594,7 +596,7 @@
 				{
 					wrapper_geral.find(".wrapper .imagem-ativa").remove();
 				}
-					  
+				
 				firstLoad = false;
 				
 				if(_data.loader != "")

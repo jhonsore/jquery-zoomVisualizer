@@ -165,9 +165,10 @@
 			//oculta footer e as setas caso tenha apenas um item no zoom
 			if($('#listagem-imagens a',wrapper_geral).size() == 1)
 			{
-				$(".footer",wrapper_geral).remove();
+				$(".footer",wrapper_geral).css({height:0,opacity:0,visibility:"hiden", display:"none"});
 				$(".content #next",wrapper_geral).hide();
 				$(".content #before",wrapper_geral).hide();
+				$("#aba-lista").css({height:0,opacity:0,visibility:"hiden", display:"none"});
 			}
 			
 			if(_data.sliderOrientation == "vertical") 
@@ -406,7 +407,6 @@
 			{
 				index_ativo = $(wrapper_geral.find(".footer .item-zoom-image.ativo")).attr('alt');
 			}
-			
 			
 			$(wrapper_geral.find(".footer .item-zoom-image")).each(function(index, element) {
 				

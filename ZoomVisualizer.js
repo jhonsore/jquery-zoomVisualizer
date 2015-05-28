@@ -96,7 +96,7 @@
 			//prevent body from scroll
 			jQuery(document.body).css('overflow', 'hidden');
 	
-			_imageLoad = wrapper_geral.find(".wrapper img").attr("src");
+			
 			_wrapper = wrapper_geral.find(".wrapper");
 			
 			btZoomIn = $(wrapper_geral.find(".zoom-in"));
@@ -375,10 +375,12 @@
 				index_ativo = $(wrapper_geral.find(".footer .item-zoom-image.ativo")).attr('alt');
 			}
 			
+			
 			$(wrapper_geral.find(".footer .item-zoom-image")).each(function(index, element) {
 				
 				if(index == index_ativo){
 					$(element).addClass('ativo');
+					_imageLoad = $(element).attr('href');
 				}
 				
 				$(element).attr("alt",index);
@@ -537,7 +539,10 @@
 			var _body = jQuery(document.body);
 			
 			//remove a imagem caso exista
-			wrapper_geral.find(".wrapper img").remove();
+			if(wrapper_geral.find(".wrapper img").size() > 0)
+			{
+				wrapper_geral.find(".wrapper img").remove();
+			}
 			
 			var img = new Image();
 			
@@ -547,15 +552,19 @@
 				_body.append(_loader);
 			}
 			
+			wrapper_geral.find(".wrapper").append($(img));
+			_wrapperResize = wrapper_geral.find(".wrapper img");
+			
 			$(img).load(function(){
 					  
 				firstLoad = false;
 				
 				if(_data.loader != "")
 				{
-					_loader.remove();
+					$('.loader_overlay').remove();
 				}
-							
+				
+				wrapper_geral.find(".wrapper").empty();		
 				wrapper_geral.find(".wrapper").append($(this));
 				
 				//image loaded

@@ -81,7 +81,8 @@
 				initialize($this);
 			}
 		}
-		
+		var timeInterval;
+
 		function initialize($this)
 		{
 						
@@ -95,16 +96,45 @@
 			
 			//prevent body from scroll
 			jQuery(document.body).css('overflow', 'hidden');
-	
 			
 			_wrapper = wrapper_geral.find(".wrapper");
 			
-			btZoomIn = $(wrapper_geral.find(".zoom-in"));
-			btZoomIn.click(zoomIn);
-			
-			btZoomOut = $(wrapper_geral.find(".zoom-out"));
-			btZoomOut.click(zoomOut);
-			
+			//---------------------------------------------------------
+			//botões de zoom
+			//---------------------------------------------------------
+			var _btZoomIn = $(wrapper_geral.find(".zoom-in"));
+			var _btZoomOut = $(wrapper_geral.find(".zoom-out"));
+	
+			_btZoomOut.mouseover(function(){
+				timeInterval = window.setInterval(zoomOut,0);
+				return false;
+			});
+	
+			_btZoomIn.mouseover(function(){
+				timeInterval = window.setInterval(zoomIn,0);
+				return false;
+			});
+	
+			_btZoomOut.mouseout(function(){
+				clearInterval(timeInterval);
+				//return false;
+			});
+	
+			_btZoomIn.mouseout(function(){
+				clearInterval(timeInterval);
+				//return false;
+			});
+	
+			_btZoomOut.click(function(){
+				return false;
+			});
+	
+			_btZoomIn.click(function(){
+				return false;
+			});
+
+			//---------------------------------------------------------
+			//---------------------------------------------------------			
 			//posiciona a imagem do zoom
 			$(".content",wrapper_geral).css({top:_data.positionZoom.top,left:_data.positionZoom.left});
 			
@@ -251,7 +281,7 @@
 			resizeHandler();
 				
 		}//end initialize
-		
+				
 		function moveImage ()
 		{
 			//$( "#zoom-visualizer .wrapper" ).mousemove(function( event ) {
@@ -385,13 +415,12 @@
 				
 				$(element).attr("alt",index);
 				
+				
+				
 				$(element).click(function(){
 									
 					if(!$(element).hasClass("ativo")){
-						
-						index_ativo = $(this).attr("alt");
 						changeImage({bt:$(this)});
-					
 					}//end if
 					
 					return false;
@@ -399,22 +428,37 @@
 			});//end each
 		
 		}//end lista thumbs
-		
+		var timeDelayLoadImage;
 		function changeImage (obj_){
-			if(wrapper_geral.find(".footer .ativo").size()>0){
-				wrapper_geral.find(".footer .ativo").removeClass("ativo");
+			
+			if($(".ativo",obj_.bt.parent()).size() > 0)
+			{
+				$(".ativo",obj_.bt.parent()).removeClass("ativo");
 			}
 			
 			obj_.bt.addClass("ativo");
+			_imageLoad = obj_.bt.attr("href");
+			index_ativo = obj_.bt.attr("alt");
+			
+			clearTimeout(timeDelayLoadImage);
+			addLoader ();
+			timeDelayLoadImage = setTimeout(function()
+								{
+									loadImage ();
+								}, 2000);
+			
+		}
 		
-			_wrapperResize.fadeOut(300,function(){
-				_wrapperResize.remove();
-				_wrapperResize = null;
-				
-				_imageLoad = obj_.bt.attr("href");
-				
-				loadImage ();
-			});
+		function addLoader ()
+		{
+			if(_data.loader != "")
+			{
+				var _body = jQuery(document.body);
+				if($('.loader_overlay').size() > 0){	$('.loader_overlay').remove();}
+				var _loader = $("<div class='loader_overlay'><img src='"+_data.loader+"'></div>");
+				_body.append(_loader);
+			}
+
 		}
 		
 		function initSetas () {
@@ -455,11 +499,9 @@
 		
 		function changeImageBySeta () {
 			$(wrapper_geral.find(".footer .item-zoom-image")).each(function(index, element) {
-			
 				if(index_ativo==index){
 					changeImage({bt:$(this)});
 				}
-			
 			});
 		}
 		
@@ -534,35 +576,33 @@
 		}//end resizeHandler
 		
 		//------------------------------------
-		
 		function loadImage () {
 			var _body = jQuery(document.body);
-			
-			//remove a imagem caso exista
-			if(wrapper_geral.find(".wrapper img").size() > 0)
-			{
-				wrapper_geral.find(".wrapper img").remove();
-			}
+						
+			addLoader ();
 			
 			var img = new Image();
-			
-			if(_data.loader != "")
-			{
-				var _loader = $("<div class='loader_overlay'><img src='"+_data.loader+"'></div>");
-				_body.append(_loader);
-			}
-			
+						
 			wrapper_geral.find(".wrapper").append($(img));
-			_wrapperResize = wrapper_geral.find(".wrapper img");
+			
+			_wrapperResize = wrapper_geral.find(".wrapper .imagem-ativa");
 			
 			$(img).load(function(){
+				
+				//remove a imagem caso exista
+				if(wrapper_geral.find(".wrapper .imagem-ativa").size() > 0)
+				{
+					wrapper_geral.find(".wrapper .imagem-ativa").remove();
+				}
 					  
 				firstLoad = false;
 				
 				if(_data.loader != "")
 				{
-					$('.loader_overlay').remove();
+					if($('.loader_overlay').size() > 0){	$('.loader_overlay').remove();}
 				}
+				
+				$(this).addClass('imagem-ativa');
 				
 				wrapper_geral.find(".wrapper").empty();		
 				wrapper_geral.find(".wrapper").append($(this));

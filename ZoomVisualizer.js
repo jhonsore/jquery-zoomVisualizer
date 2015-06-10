@@ -17,6 +17,7 @@
 
 		var defaults =
 		{
+			closeWhenClickOutside	: false,
 			closeWhenEscPressed		: false,
 			object					: null,
 			resizeInitial			: false,// redimensiona ou não a imagem em zoom
@@ -276,6 +277,11 @@
 				$(document).on('keyup',checkKeyUp);
 
 			}
+				
+			if(_data.closeWhenClickOutside)
+			{	
+				$(document).mousedown(checkBackgroundMouseDown);
+			}
 					
 			initListaThumbs();//inicia a lista com os thumbs
 			loadImage();//carrega imagem
@@ -288,6 +294,14 @@
 			resizeHandler();
 				
 		}//end initialize
+		
+		function checkBackgroundMouseDown (evt)
+		{
+			if($(event.target).hasClass("wrapper") ||$(event.target).hasClass("lightbox-ofertas-bg"))
+			{
+				closeVisualizer ();
+			}
+		}
 		
 		function checkKeyUp (evt)
 		{
@@ -418,6 +432,8 @@
 			plugin_settings.removed.call(this, {});
 			
 			$(window).unbind("resize", resizeHandler);
+			
+			$(document).unbind("mousedown",checkBackgroundMouseDown);
 			
 			if(plugin_settings.closeWhenEscPressed)
 			{

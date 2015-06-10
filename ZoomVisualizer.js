@@ -17,6 +17,7 @@
 
 		var defaults =
 		{
+			closeWhenEscPressed		: false,
 			object					: null,
 			resizeInitial			: false,// redimensiona ou não a imagem em zoom
 			sliderOrientation		: "horizontal",
@@ -265,12 +266,17 @@
 			
 			_btFechar.click(
 				function () {
-					$(_data.object).animate({opacity:0},300,function(){	$(_data.object).remove();destroy();});
-					jQuery(document.body).css('overflow', 'auto');
+					closeVisualizer ();
 					return false;
 				}
 			);
 			
+			if(_data.closeWhenEscPressed)
+			{
+				$(document).on('keyup',checkKeyUp);
+
+			}
+					
 			initListaThumbs();//inicia a lista com os thumbs
 			loadImage();//carrega imagem
 			initSetas();//inicia as setas
@@ -282,6 +288,19 @@
 			resizeHandler();
 				
 		}//end initialize
+		
+		function checkKeyUp (evt)
+		{
+			if (evt.keyCode == 27) {
+			   closeVisualizer ();
+			}
+		}
+		
+		function closeVisualizer ()
+		{
+			$(_data.object).animate({opacity:0},300,function(){	$(_data.object).remove();destroy();});
+			jQuery(document.body).css('overflow', 'auto');
+		}
 				
 		function moveImage ()
 		{
@@ -397,6 +416,13 @@
 			if($('.loader_overlay').size() > 0){	$('.loader_overlay').remove();}
 			
 			plugin_settings.removed.call(this, {});
+			
+			$(window).unbind("resize", resizeHandler);
+			
+			if(plugin_settings.closeWhenEscPressed)
+			{
+				$(document).unbind("keyup", checkKeyUp);
+			}
 		}
 			
 		//--------------------
